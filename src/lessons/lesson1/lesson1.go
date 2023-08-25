@@ -15,6 +15,12 @@ func setViewport(w, h int) {
 	gl.Viewport(0, 0, int32(w), int32(h))
 }
 
+func processInput(w *glfw.Window) {
+	if w.GetKey(glfw.KeyEscape) == glfw.Press {
+		w.SetShouldClose(true)
+	}
+}
+
 func Lesson1() {
 	var width, height = 800, 600
 	window, err := glfw.CreateWindow(int(width), int(height), "Learn opengl go", nil, nil)
@@ -33,7 +39,12 @@ func Lesson1() {
 	})
 
 	for !window.ShouldClose() {
-		window.SwapBuffers()
+		processInput(window)
+
+		gl.ClearColor(0.2, 0.3, 0.3, 1)
+		gl.Clear(gl.COLOR_BUFFER_BIT)
+
 		glfw.PollEvents()
+		window.SwapBuffers()
 	}
 }
