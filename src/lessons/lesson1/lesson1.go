@@ -3,10 +3,13 @@ package lesson1
 import (
 	"fmt"
 	"learn_opengl/src/lib/helpers"
+	"runtime"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
+
+func init() { runtime.LockOSThread() }
 
 func setViewport(w, h int) {
 	gl.Viewport(0, 0, int32(w), int32(h))
@@ -20,8 +23,9 @@ func Lesson1() {
 		helpers.FinishOnError(fmt.Errorf("Window is nil"))
 	}
 
-	window.MakeContextCurrent()
+	gl.Init()
 
+	window.MakeContextCurrent()
 	setViewport(width, height)
 
 	window.SetFramebufferSizeCallback(func(w *glfw.Window, width, height int) {
