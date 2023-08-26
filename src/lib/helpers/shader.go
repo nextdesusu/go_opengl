@@ -1,9 +1,11 @@
 package helpers
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
@@ -12,37 +14,64 @@ type Shader struct {
 	Id uint32
 }
 
-var shaderSources map[uint32]string = make(map[uint32]string)
+type ShaderCreationOpts struct {
+	ShaderType uint32
+	Src        string
+}
 
-func NewShaderForLesson(shaderName string, lesson int, isVertexShader bool) (*Shader, error) {
+type ShaderCreationConfigOverride func(*ShaderCreationOpts)
+
+func WithSrc(src string) ShaderCreationConfigOverride {
+	return func(opts *ShaderCreationOpts) {
+		// string have to be null terminated
+		// if !strings.HasSuffix(src, "\x00") {
+		// 	src += "\x00"
+		// }
+		opts.Src = src
+	}
+}
+
+func WithShaderType(t uint32) ShaderCreationConfigOverride {
+	return func(opts *ShaderCreationOpts) {
+		opts.ShaderType = t
+	}
+}
+
+func NewShaderForLesson(shaderName string, lesson int, overrides ...ShaderCreationConfigOverride) (*Shader, error) {
 	lessonFolder := fmt.Sprintf("lesson%d", lesson)
 	p := path.Join("assets", lessonFolder, shaderName)
 	file, err := os.ReadFile(p)
 	if err != nil {
 		return nil, err
 	}
-	src := string(file)
-
-	return NewShader(src, isVertexShader)
+	src := bytes.NewBuffer(file).String()
+	args := make([]ShaderCreationConfigOverride, 0)
+	args = append(args, WithSrc(src))
+	args = append(args, overrides...)
+	return NewShader(args...)
 }
 
-func NewShader(src string, isVertexShader bool) (shader *Shader, err error) {
-	var shaderId uint32
-	if isVertexShader {
-		shaderId = gl.CreateShader(gl.VERTEX_SHADER)
-	} else {
-		shaderId = gl.CreateShader(gl.FRAGMENT_SHADER)
+func createDefaultShaderCreationOpts() *ShaderCreationOpts {
+	return &ShaderCreationOpts{}
+}
+
+func NewShader(overrides ...ShaderCreationConfigOverride) (shader *Shader, err error) {
+	opts := createDefaultShaderCreationOpts()
+	for _, override := range overrides {
+		override(opts)
+	}
+	if opts.ShaderType == 0 {
+		return nil, fmt.Errorf("missing shader type")
 	}
 
-	processedSrc := src
+	if !strings.HasSuffix(opts.Src, "\x00") {
+		opts.Src += "\x00"
+	}
+	shaderId, err := compileShader(opts.Src, opts.ShaderType)
 
-	shaderSources[shaderId] = processedSrc
-
-	handledSrc := gl.Str(processedSrc)
-
-	gl.ShaderSource(shaderId, 1, &handledSrc, nil)
-	gl.CompileShader(shaderId)
-	err = checkShader(shaderId)
+	// gl.ShaderSource(shaderId, 1, srcStringData, nil)
+	// gl.CompileShader(shaderId)
+	// err = checkShader(shaderId)
 	if err != nil {
 		return nil, err
 	}
@@ -52,22 +81,30 @@ func NewShader(src string, isVertexShader bool) (shader *Shader, err error) {
 	}, nil
 }
 
-func (shader *Shader) Destroy() {
+func (shader *Shader) Dispose() {
 	// Free source from memory
-	delete(shaderSources, shader.Id)
-
+	gl.DeleteShader(shader.Id)
 }
 
-func checkShader(shaderId uint32) error {
-	var success int32
-	gl.GetShaderiv(shaderId, gl.COMPILE_STATUS, &success)
+func compileShader(source string, shaderType uint32) (uint32, error) {
+	shader := gl.CreateShader(shaderType)
 
-	if success == 0 {
-		const buffSize int32 = 512
-		var infoLog string
-		gl.GetShaderInfoLog(shaderId, buffSize, nil, gl.Str(infoLog))
-		return fmt.Errorf("shader compilation failed: %s", infoLog)
+	csources, free := gl.Strs(source)
+	gl.ShaderSource(shader, 1, csources, nil)
+	free()
+	gl.CompileShader(shader)
+
+	var status int32
+	gl.GetShaderiv(shader, gl.COMPILE_STATUS, &status)
+	if status == gl.FALSE {
+		var logLength int32
+		gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &logLength)
+
+		log := createStringBuffer(int(logLength))
+		gl.GetShaderInfoLog(shader, logLength, nil, gl.Str(log))
+
+		return 0, fmt.Errorf("failed to compile %v: %v", source, log)
 	}
 
-	return nil
+	return shader, nil
 }

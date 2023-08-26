@@ -3,6 +3,7 @@ package lesson2
 import (
 	"fmt"
 	"learn_opengl/src/lib/helpers"
+	"unsafe"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -18,7 +19,7 @@ func processInput(w *glfw.Window) {
 	}
 }
 
-func createWindow() {
+func createWindow() *glfw.Window {
 	var width, height = 800, 600
 	window, err := glfw.CreateWindow(int(width), int(height), "Learn opengl go", nil, nil)
 	helpers.FinishOnError(err)
@@ -35,6 +36,10 @@ func createWindow() {
 		setViewport(width, height)
 	})
 
+	return window
+}
+
+func startupWindow(window *glfw.Window) {
 	for !window.ShouldClose() {
 		processInput(window)
 
@@ -47,17 +52,29 @@ func createWindow() {
 }
 
 func Lesson2() {
-	// verticies := [9]uint32{}
-	// verticiesPointer := unsafe.Pointer(&verticies)
-
-	gl.Init()
-	vertexShader, err := helpers.NewShaderForLesson("v.vertex", 2, true)
+	verticies := [9]float32{
+		-0.5, -0.5, 0.0,
+		0.5, -0.5, 0.0,
+		0.0, 0.5, 0.0,
+	}
+	window := createWindow()
+	vertexShader, err := helpers.NewShaderForLesson("v.vertex", 2, helpers.WithShaderType(gl.VERTEX_SHADER))
 	helpers.FinishOnError(err)
-	fragmentShader, err := helpers.NewShaderForLesson("f.frag", 2, false)
+	fragmentShader, err := helpers.NewShaderForLesson("f.frag", 2, helpers.WithShaderType(gl.FRAGMENT_SHADER))
 	helpers.FinishOnError(err)
 
-	fmt.Println("vertex", vertexShader)
-	fmt.Println("fragment", fragmentShader)
+	program, err := helpers.NewProgram(vertexShader, fragmentShader)
+	helpers.FinishOnError(err)
+
+	vertexShader.Dispose()
+	fragmentShader.Dispose()
+	program.Use()
+	var size = int32(3 * unsafe.Sizeof(verticies[0]))
+	gl.VertexAttribPointerWithOffset(0, 3, gl.FLOAT, false, size, 0)
+	gl.EnableVertexAttribArray(0)
+
+	fmt.Println("vertex", program)
+	startupWindow(window)
 
 	// var vbo uint32
 	// gl.GenBuffers(1, &vbo)
