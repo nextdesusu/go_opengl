@@ -1,8 +1,6 @@
 package helpers
 
 import (
-	"fmt"
-
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
@@ -17,18 +15,10 @@ func NewProgram(vertexShader, fragmentShader *Shader) (*Program, error) {
 	gl.AttachShader(program, fragmentShader.Id)
 	gl.LinkProgram(program)
 
-	var status int32
-	gl.GetProgramiv(program, gl.LINK_STATUS, &status)
-	if status == gl.FALSE {
-		var logLength int32
-		gl.GetProgramiv(program, gl.INFO_LOG_LENGTH, &logLength)
-
-		log := createStringBuffer(int(logLength))
-		gl.GetProgramInfoLog(program, logLength, nil, gl.Str(log))
-
-		return nil, fmt.Errorf("failed to link program: %v", log)
+	err := CheckGlError(program, gl.LINK_STATUS, gl.GetProgramiv, gl.GetProgramInfoLog, "Program linking failed")
+	if err != nil {
+		return nil, err
 	}
-
 	return &Program{
 		Id: program,
 	}, nil

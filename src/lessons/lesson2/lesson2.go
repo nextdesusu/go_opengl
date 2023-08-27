@@ -3,7 +3,6 @@ package lesson2
 import (
 	"fmt"
 	"learn_opengl/src/lib/helpers"
-	"unsafe"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -39,24 +38,44 @@ func createWindow() *glfw.Window {
 	return window
 }
 
-func startupWindow(window *glfw.Window) {
-	for !window.ShouldClose() {
-		processInput(window)
-
-		gl.ClearColor(0.2, 0.3, 0.3, 1)
-		gl.Clear(gl.COLOR_BUFFER_BIT)
-
-		glfw.PollEvents()
-		window.SwapBuffers()
-	}
-}
-
-func Lesson2() {
-	verticies := [9]float32{
+/*
+ * Creates the Vertex Array Object for a triangle.
+ */
+func createTriangleBuffers() (VAO uint32, VBO uint32) {
+	vertices := []float32{
 		-0.5, -0.5, 0.0,
 		0.5, -0.5, 0.0,
 		0.0, 0.5, 0.0,
 	}
+
+	gl.GenVertexArrays(1, &VAO)
+
+	gl.GenBuffers(1, &VBO)
+
+	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointers()
+	gl.BindVertexArray(VAO)
+
+	// copy vertices data into VBO (it needs to be bound first)
+	gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+
+	// specify the format of our vertex input
+	// (shader) input 0
+	// vertex has size 3
+	// vertex items are of type FLOAT
+	// do not normalize (already done)
+	// stride of 3 * sizeof(float) (separation of vertices)
+	// offset of where the position data starts (0 for the beginning)
+	gl.VertexAttribPointerWithOffset(0, 3, gl.FLOAT, false, 3*4, 0)
+	gl.EnableVertexAttribArray(0)
+
+	// unbind the VAO (safe practice so we don't accidentally (mis)configure it later)
+	gl.BindVertexArray(0)
+
+	return VAO, VBO
+}
+
+func Lesson2() {
 	window := createWindow()
 	vertexShader, err := helpers.NewShaderForLesson("v.vertex", 2, helpers.WithShaderType(gl.VERTEX_SHADER))
 	helpers.FinishOnError(err)
@@ -68,17 +87,19 @@ func Lesson2() {
 
 	vertexShader.Dispose()
 	fragmentShader.Dispose()
-	program.Use()
-	var size = int32(3 * unsafe.Sizeof(verticies[0]))
-	gl.VertexAttribPointerWithOffset(0, 3, gl.FLOAT, false, size, 0)
-	gl.EnableVertexAttribArray(0)
+	VAO, _ := createTriangleBuffers()
 
-	fmt.Println("vertex", program)
-	startupWindow(window)
+	gl.ClearColor(0.2, 0.3, 0.3, 1)
+	for !window.ShouldClose() {
+		processInput(window)
 
-	// var vbo uint32
-	// gl.GenBuffers(1, &vbo)
-	// gl.BufferData(gl.ARRAY_BUFFER, len(verticies), verticiesPointer, gl.STATIC_DRAW)
+		gl.Clear(gl.COLOR_BUFFER_BIT)
+
+		program.Use()
+		gl.BindVertexArray(VAO)
+		gl.DrawArrays(gl.TRIANGLES, 0, 3)
+
+		glfw.PollEvents()
+		window.SwapBuffers()
+	}
 }
-
-// func init() { runtime.LockOSThread() }
