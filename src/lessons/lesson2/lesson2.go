@@ -41,13 +41,7 @@ func createWindow() *glfw.Window {
 /*
  * Creates the Vertex Array Object for a triangle.
  */
-func createTriangleBuffers() (VAO uint32, VBO uint32) {
-	vertices := []float32{
-		-0.5, -0.5, 0.0,
-		0.5, -0.5, 0.0,
-		0.0, 0.5, 0.0,
-	}
-
+func createTriangleBuffers(vertices []float32) (VAO uint32, VBO uint32) {
 	gl.GenVertexArrays(1, &VAO)
 
 	gl.GenBuffers(1, &VBO)
@@ -87,7 +81,13 @@ func Lesson2() {
 
 	vertexShader.Dispose()
 	fragmentShader.Dispose()
-	VAO, _ := createTriangleBuffers()
+
+	vertices := []float32{
+		-0.5, -0.5, 0.0,
+		0.5, -0.5, 0.0,
+		0.0, 0.5, 0.0,
+	}
+	VAO, _ := createTriangleBuffers(vertices)
 
 	gl.ClearColor(0.2, 0.3, 0.3, 1)
 	for !window.ShouldClose() {
@@ -98,7 +98,6 @@ func Lesson2() {
 		program.Use()
 		gl.BindVertexArray(VAO)
 		gl.DrawArrays(gl.TRIANGLES, 0, 3)
-
 		glfw.PollEvents()
 		window.SwapBuffers()
 	}
