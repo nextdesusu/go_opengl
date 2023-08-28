@@ -27,3 +27,7 @@ func NewProgram(vertexShader, fragmentShader *Shader) (*Program, error) {
 func (program *Program) Use() {
 	gl.UseProgram(program.Id)
 }
+
+func (program *Program) Delete() {
+	gl.DeleteProgram(program.Id)
+}
