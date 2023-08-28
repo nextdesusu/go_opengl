@@ -7,7 +7,7 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
-func exercise1() {
+func exercise2() {
 	window := createWindow()
 	vertexShader, err := helpers.NewShaderForLesson("v.vertex", 2, helpers.WithShaderType(gl.VERTEX_SHADER))
 	helpers.FinishOnError(err)
@@ -21,12 +21,10 @@ func exercise1() {
 	fragmentShader.Dispose()
 
 	t1 := createTriangle2D(0, 0, 100, 100)
-	t2 := createTriangle2D(100, 0, 100, 100)
-	var vertices []float32
-	vertices = append(vertices, t1...)
-	vertices = append(vertices, t2...)
+	t2 := createTriangle2D(0, 100, 200, 100)
 
-	VAO, VBO := createTriangleBuffers(vertices)
+	VAO1, VBO1 := createTriangleBuffers(t1)
+	VAO2, VBO2 := createTriangleBuffers(t2)
 
 	gl.ClearColor(0.2, 0.3, 0.3, 1)
 	for !window.ShouldClose() {
@@ -36,15 +34,21 @@ func exercise1() {
 
 		program.Use()
 
-		gl.BindVertexArray(VAO)
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(vertices)/3))
+		gl.BindVertexArray(VAO1)
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(t1)/3))
+
+		gl.BindVertexArray(VAO2)
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(t2)/3))
 
 		glfw.PollEvents()
 		window.SwapBuffers()
 	}
 
-	gl.DeleteVertexArrays(1, &VAO)
-	gl.DeleteBuffers(1, &VBO)
+	gl.DeleteVertexArrays(1, &VAO1)
+	gl.DeleteBuffers(1, &VBO1)
+
+	gl.DeleteVertexArrays(1, &VAO2)
+	gl.DeleteBuffers(1, &VBO2)
 
 	program.Delete()
 }

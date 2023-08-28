@@ -146,33 +146,3 @@ func createTriangle2D(x, y, w, h int) []float32 {
 		bl.X, bl.Y, 0.0, // bottom left
 	}
 }
-
-func createTriangleBuffersForExercise1(vertices []float32) (VAO uint32, VBO uint32) {
-	gl.GenVertexArrays(1, &VAO)
-	gl.GenBuffers(1, &VBO)
-	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointers()
-	gl.BindVertexArray(VAO)
-
-	const FLOAT_32_SIZE = 4
-	const UINT_32_SIZE = 4
-
-	// copy vertices data into VBO (it needs to be bound first)
-	gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*FLOAT_32_SIZE, gl.Ptr(vertices), gl.STATIC_DRAW)
-
-	// specify the format of our vertex input
-	// (shader) input 0
-	// vertex has size 3
-	// vertex items are of type FLOAT
-	// do not normalize (already done)
-	// stride of 3 * sizeof(float) (separation of vertices)
-	// offset of where the position data starts (0 for the beginning)
-	gl.VertexAttribPointerWithOffset(0, 3, gl.FLOAT, false, 3*FLOAT_32_SIZE, 0)
-	gl.EnableVertexAttribArray(0)
-
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	// unbind the VAO (safe practice so we don't accidentally (mis)configure it later)
-	gl.BindVertexArray(0)
-
-	return VAO, VBO
-}
