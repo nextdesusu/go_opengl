@@ -8,6 +8,26 @@ type Program struct {
 	Id uint32
 }
 
+func NewProgramForLesson(vertexName, fragmentName string, lesson int) (*Program, error) {
+	vertexShader, err := NewShaderForLesson(vertexName, lesson, WithShaderType(gl.VERTEX_SHADER))
+	if err != nil {
+		return nil, err
+	}
+	defer vertexShader.Dispose()
+
+	fragmentShader, err := NewShaderForLesson(fragmentName, lesson, WithShaderType(gl.FRAGMENT_SHADER))
+	if err != nil {
+		return nil, err
+	}
+	defer fragmentShader.Dispose()
+
+	program, err := NewProgram(vertexShader, fragmentShader)
+	if err != nil {
+		return nil, err
+	}
+	return program, nil
+}
+
 func NewProgram(vertexShader, fragmentShader *Shader) (*Program, error) {
 	program := gl.CreateProgram()
 

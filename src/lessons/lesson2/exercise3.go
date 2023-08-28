@@ -7,18 +7,12 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
-func exercise2() {
+func exercise3() {
 	window := createWindow()
-	vertexShader, err := helpers.NewShaderForLesson("v.vert", 2, helpers.WithShaderType(gl.VERTEX_SHADER))
+	program1, err := helpers.NewProgramForLesson("v.vert", "f.frag", 2)
 	helpers.FinishOnError(err)
-	fragmentShader, err := helpers.NewShaderForLesson("f.frag", 2, helpers.WithShaderType(gl.FRAGMENT_SHADER))
+	program2, err := helpers.NewProgramForLesson("v.vert", "orange.frag", 2)
 	helpers.FinishOnError(err)
-
-	program, err := helpers.NewProgram(vertexShader, fragmentShader)
-	helpers.FinishOnError(err)
-
-	vertexShader.Dispose()
-	fragmentShader.Dispose()
 
 	t1 := createTriangle2D(0, 0, 100, 100)
 	t2 := createTriangle2D(0, 100, 200, 100)
@@ -32,11 +26,11 @@ func exercise2() {
 
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		program.Use()
-
+		program1.Use()
 		gl.BindVertexArray(VAO1)
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(t1)/3))
 
+		program2.Use()
 		gl.BindVertexArray(VAO2)
 		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(t2)/3))
 
@@ -50,5 +44,6 @@ func exercise2() {
 	gl.DeleteVertexArrays(1, &VAO2)
 	gl.DeleteBuffers(1, &VBO2)
 
-	program.Delete()
+	program1.Delete()
+	program2.Delete()
 }

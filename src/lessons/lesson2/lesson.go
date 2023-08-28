@@ -10,7 +10,7 @@ import (
 
 func lesson() {
 	window := createWindow()
-	vertexShader, err := helpers.NewShaderForLesson("v.vertex", 2, helpers.WithShaderType(gl.VERTEX_SHADER))
+	vertexShader, err := helpers.NewShaderForLesson("v.vert", 2, helpers.WithShaderType(gl.VERTEX_SHADER))
 	helpers.FinishOnError(err)
 	fragmentShader, err := helpers.NewShaderForLesson("f.frag", 2, helpers.WithShaderType(gl.FRAGMENT_SHADER))
 	helpers.FinishOnError(err)
