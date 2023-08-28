@@ -1,4 +1,4 @@
-package math
+package app_math
 
 type Range2d struct {
 	Min, Max float64
