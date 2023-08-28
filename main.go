@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"learn_opengl/src/lessons/lesson2"
+	"learn_opengl/src/lessons/lesson3"
 	"learn_opengl/src/lib/helpers"
 	"runtime"
 )
@@ -16,7 +16,7 @@ func main() {
 
 	helpers.InitGLFW()
 	defer helpers.DestroyGLFW()
-	lesson2.Lesson2()
+	lesson3.Lesson3()
 
 	fmt.Println("Finish")
 }

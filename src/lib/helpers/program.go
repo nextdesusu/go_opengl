@@ -1,6 +1,8 @@
 package helpers
 
 import (
+	"fmt"
+
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
@@ -50,4 +52,18 @@ func (program *Program) Use() {
 
 func (program *Program) Delete() {
 	gl.DeleteProgram(program.Id)
+}
+
+func (program *Program) GetUniformLocation(uniformName string) int32 {
+	uniform := uniformName
+	if !IsNullTerminated(uniform) {
+		uniform += "\x00"
+	}
+
+	uniformPtr := gl.Str(uniform)
+	val := gl.GetUniformLocation(program.Id, uniformPtr)
+	if val == -1 {
+		panic(fmt.Errorf("not found uniform location for: %s", uniformName))
+	}
+	return val
 }
