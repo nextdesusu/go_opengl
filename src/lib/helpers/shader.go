@@ -51,14 +51,10 @@ func NewShaderForLesson(shaderName string, lesson int, overrides ...ShaderCreati
 	return NewShader(args...)
 }
 
-func createDefaultShaderCreationOpts() *ShaderCreationOpts {
-	return &ShaderCreationOpts{}
-}
-
 func NewShader(overrides ...ShaderCreationConfigOverride) (shader *Shader, err error) {
-	opts := createDefaultShaderCreationOpts()
+	opts := ShaderCreationOpts{}
 	for _, override := range overrides {
-		override(opts)
+		override(&opts)
 	}
 	if opts.ShaderType == 0 {
 		return nil, fmt.Errorf("missing shader type")
