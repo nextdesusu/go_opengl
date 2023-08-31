@@ -9,9 +9,9 @@ import (
 
 func exercise2() {
 	window := createWindow()
-	vertexShader, err := helpers.NewShaderForLesson("v.vert", 2, helpers.WithShaderType(gl.VERTEX_SHADER))
+	vertexShader, err := helpers.NewShaderPartForLesson("v.vert", 2, helpers.WithShaderPartType(gl.VERTEX_SHADER))
 	helpers.FinishOnError(err)
-	fragmentShader, err := helpers.NewShaderForLesson("f.frag", 2, helpers.WithShaderType(gl.FRAGMENT_SHADER))
+	fragmentShader, err := helpers.NewShaderPartForLesson("f.frag", 2, helpers.WithShaderPartType(gl.FRAGMENT_SHADER))
 	helpers.FinishOnError(err)
 
 	program, err := helpers.NewProgram(vertexShader, fragmentShader)

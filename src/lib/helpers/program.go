@@ -11,13 +11,13 @@ type Program struct {
 }
 
 func NewProgramForLesson(vertexName, fragmentName string, lesson int) (*Program, error) {
-	vertexShader, err := NewShaderForLesson(vertexName, lesson, WithShaderType(gl.VERTEX_SHADER))
+	vertexShader, err := NewShaderPartForLesson(vertexName, lesson, WithShaderPartType(gl.VERTEX_SHADER))
 	if err != nil {
 		return nil, err
 	}
 	defer vertexShader.Dispose()
 
-	fragmentShader, err := NewShaderForLesson(fragmentName, lesson, WithShaderType(gl.FRAGMENT_SHADER))
+	fragmentShader, err := NewShaderPartForLesson(fragmentName, lesson, WithShaderPartType(gl.FRAGMENT_SHADER))
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func NewProgramForLesson(vertexName, fragmentName string, lesson int) (*Program,
 	return program, nil
 }
 
-func NewProgram(vertexShader, fragmentShader *Shader) (*Program, error) {
+func NewProgram(vertexShader, fragmentShader *ShaderPart) (*Program, error) {
 	program := gl.CreateProgram()
 
 	gl.AttachShader(program, vertexShader.Id)

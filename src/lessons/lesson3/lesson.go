@@ -11,9 +11,9 @@ import (
 
 func uniform() {
 	window := createWindow()
-	vertexShader, err := helpers.NewShaderForLesson("v.vert", 3, helpers.WithShaderType(gl.VERTEX_SHADER))
+	vertexShader, err := helpers.NewShaderPartForLesson("v.vert", 3, helpers.WithShaderPartType(gl.VERTEX_SHADER))
 	helpers.FinishOnError(err)
-	fragmentShader, err := helpers.NewShaderForLesson("f.frag", 3, helpers.WithShaderType(gl.FRAGMENT_SHADER))
+	fragmentShader, err := helpers.NewShaderPartForLesson("f.frag", 3, helpers.WithShaderPartType(gl.FRAGMENT_SHADER))
 	helpers.FinishOnError(err)
 
 	program, err := helpers.NewProgram(vertexShader, fragmentShader)
@@ -63,9 +63,9 @@ func uniform() {
 
 func attributes() {
 	window := createWindow()
-	vertexShader, err := helpers.NewShaderForLesson("v.vert", 3, helpers.WithShaderType(gl.VERTEX_SHADER))
+	vertexShader, err := helpers.NewShaderPartForLesson("v_attrib.vert", 3, helpers.WithShaderPartType(gl.VERTEX_SHADER))
 	helpers.FinishOnError(err)
-	fragmentShader, err := helpers.NewShaderForLesson("f.frag", 3, helpers.WithShaderType(gl.FRAGMENT_SHADER))
+	fragmentShader, err := helpers.NewShaderPartForLesson("f_attrib.frag", 3, helpers.WithShaderPartType(gl.FRAGMENT_SHADER))
 	helpers.FinishOnError(err)
 
 	program, err := helpers.NewProgram(vertexShader, fragmentShader)
@@ -89,14 +89,15 @@ func attributes() {
 
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		time := glfw.GetTime()
-		greenValue := (math.Sin(time) / 2) + 0.5
-
 		program.Use()
-		u_ourColor := program.GetUniformLocation("ourColor")
-		gl.Uniform4f(u_ourColor, 0.0, float32(greenValue), 0.0, 1)
+		gl.VertexAttribPointerWithOffset(0, 3, gl.FLOAT, false, 6*4, 0)
+		gl.EnableVertexAttribArray(0)
+
+		gl.VertexAttribPointerWithOffset(1, 3, gl.FLOAT, false, 6*4, 3*4)
+		gl.EnableVertexAttribArray(1)
+
 		gl.BindVertexArray(VAO)
-		gl.DrawArrays(gl.TRIANGLES, 0, 6)
+		gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
 		glfw.PollEvents()
 		window.SwapBuffers()

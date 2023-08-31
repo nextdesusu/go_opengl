@@ -10,19 +10,19 @@ import (
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
-type Shader struct {
+type ShaderPart struct {
 	Id uint32
 }
 
-type ShaderCreationOpts struct {
+type ShaderPartCreationOpts struct {
 	ShaderType uint32
 	Src        string
 }
 
-type ShaderCreationConfigOverride func(*ShaderCreationOpts)
+type ShaderCreationConfigOverride func(*ShaderPartCreationOpts)
 
 func WithSrc(src string) ShaderCreationConfigOverride {
-	return func(opts *ShaderCreationOpts) {
+	return func(opts *ShaderPartCreationOpts) {
 		// string have to be null terminated
 		// if !strings.HasSuffix(src, "\x00") {
 		// 	src += "\x00"
@@ -31,13 +31,13 @@ func WithSrc(src string) ShaderCreationConfigOverride {
 	}
 }
 
-func WithShaderType(t uint32) ShaderCreationConfigOverride {
-	return func(opts *ShaderCreationOpts) {
+func WithShaderPartType(t uint32) ShaderCreationConfigOverride {
+	return func(opts *ShaderPartCreationOpts) {
 		opts.ShaderType = t
 	}
 }
 
-func NewShaderForLesson(shaderName string, lesson int, overrides ...ShaderCreationConfigOverride) (*Shader, error) {
+func NewShaderPartForLesson(shaderName string, lesson int, overrides ...ShaderCreationConfigOverride) (*ShaderPart, error) {
 	lessonFolder := fmt.Sprintf("lesson%d", lesson)
 	p := path.Join("assets", lessonFolder, shaderName)
 	file, err := os.ReadFile(p)
@@ -48,11 +48,11 @@ func NewShaderForLesson(shaderName string, lesson int, overrides ...ShaderCreati
 	args := make([]ShaderCreationConfigOverride, 0)
 	args = append(args, WithSrc(src))
 	args = append(args, overrides...)
-	return NewShader(args...)
+	return NewShaderPart(args...)
 }
 
-func NewShader(overrides ...ShaderCreationConfigOverride) (shader *Shader, err error) {
-	opts := ShaderCreationOpts{}
+func NewShaderPart(overrides ...ShaderCreationConfigOverride) (shader *ShaderPart, err error) {
+	opts := ShaderPartCreationOpts{}
 	for _, override := range overrides {
 		override(&opts)
 	}
@@ -63,7 +63,7 @@ func NewShader(overrides ...ShaderCreationConfigOverride) (shader *Shader, err e
 	if !strings.HasSuffix(opts.Src, "\x00") {
 		opts.Src += "\x00"
 	}
-	shaderId, err := compileShader(opts.Src, opts.ShaderType)
+	shaderId, err := compileShaderPart(opts.Src, opts.ShaderType)
 
 	// gl.ShaderSource(shaderId, 1, srcStringData, nil)
 	// gl.CompileShader(shaderId)
@@ -72,17 +72,17 @@ func NewShader(overrides ...ShaderCreationConfigOverride) (shader *Shader, err e
 		return nil, err
 	}
 
-	return &Shader{
+	return &ShaderPart{
 		Id: shaderId,
 	}, nil
 }
 
-func (shader *Shader) Dispose() {
+func (shader *ShaderPart) Dispose() {
 	// Free source from memory
 	gl.DeleteShader(shader.Id)
 }
 
-func compileShader(source string, shaderType uint32) (uint32, error) {
+func compileShaderPart(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
 
 	csources, free := gl.Strs(source)
