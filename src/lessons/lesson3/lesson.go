@@ -110,5 +110,5 @@ func attributes() {
 }
 
 func lesson3() {
-	attributes()
+	exercise2()
 }
