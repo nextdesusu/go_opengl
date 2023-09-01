@@ -31,11 +31,11 @@ func NewShader(vertexPath, fragmentPath string) (*Shader, error) {
 		return nil, err
 	}
 
-	vertexShaderPart, err := compile(vertexSrc, gl.VERTEX_SHADER)
+	vertexShaderPart, err := compileShaderPart(vertexSrc, gl.VERTEX_SHADER)
 	if err != nil {
 		return nil, err
 	}
-	fragmentShaderPart, err := compile(fragmentSrc, gl.FRAGMENT_SHADER)
+	fragmentShaderPart, err := compileShaderPart(fragmentSrc, gl.FRAGMENT_SHADER)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func readShaderPath(path string) (string, error) {
 	return EnsureNullTerminated(res), nil
 }
 
-func compile(source string, shaderType uint32) (uint32, error) {
+func compileShaderPart(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
 
 	csources, free := gl.Strs(source)

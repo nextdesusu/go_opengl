@@ -81,18 +81,3 @@ func (shader *ShaderPart) Dispose() {
 	// Free source from memory
 	gl.DeleteShader(shader.Id)
 }
-
-func compileShaderPart(source string, shaderType uint32) (uint32, error) {
-	shader := gl.CreateShader(shaderType)
-
-	csources, free := gl.Strs(source)
-	gl.ShaderSource(shader, 1, csources, nil)
-	free()
-	gl.CompileShader(shader)
-	err := CheckGlError(shader, gl.COMPILE_STATUS, gl.GetShaderiv, gl.GetShaderInfoLog, "Shader compilation failed")
-	if err != nil {
-		return 0, err
-	}
-
-	return shader, nil
-}
