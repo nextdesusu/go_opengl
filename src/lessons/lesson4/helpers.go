@@ -77,7 +77,7 @@ func createTriangleBuffers(vertices []float32) (VAO uint32, VBO uint32) {
 	return VAO, VBO
 }
 
-func createTriangleBuffersWithIndices(vertices []float32, indices []uint32) (VAO uint32, VBO uint32, EBO uint32) {
+func createTriangleBuffersWithIndices(vertices []float32, indices []uint32, bindAttrs func()) (VAO uint32, VBO uint32, EBO uint32) {
 	gl.GenVertexArrays(1, &VAO)
 	gl.GenBuffers(1, &VBO)
 	gl.GenBuffers(1, &EBO)
@@ -94,15 +94,7 @@ func createTriangleBuffersWithIndices(vertices []float32, indices []uint32) (VAO
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*UINT_32_SIZE, gl.Ptr(indices), gl.STATIC_DRAW)
 
-	// specify the format of our vertex input
-	// (shader) input 0
-	// vertex has size 3
-	// vertex items are of type FLOAT
-	// do not normalize (already done)
-	// stride of 3 * sizeof(float) (separation of vertices)
-	// offset of where the position data starts (0 for the beginning)
-	gl.VertexAttribPointerWithOffset(0, 3, gl.FLOAT, false, 3*FLOAT_32_SIZE, 0)
-	gl.EnableVertexAttribArray(0)
+	bindAttrs()
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	// unbind the VAO (safe practice so we don't accidentally (mis)configure it later)
