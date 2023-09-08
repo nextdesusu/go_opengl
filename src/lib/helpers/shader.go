@@ -73,6 +73,10 @@ func (shader *Shader) SetInt(name CString, value int32) {
 	gl.Uniform1i(shader.getUniformLocation(name), value)
 }
 
+func (shader *Shader) SetUniform4f(name CString, v0 float32, v1 float32, v2 float32, v3 float32) {
+	gl.Uniform4f(shader.getUniformLocation(name), v0, v1, v2, v3)
+}
+
 func (shader *Shader) SetFloat(name CString, value float32) {
 	gl.Uniform1f(shader.getUniformLocation(name), value)
 }
