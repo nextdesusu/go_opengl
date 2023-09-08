@@ -10,16 +10,8 @@ import (
 
 func lesson() {
 	window := createWindow()
-	vertexShader, err := helpers.NewShaderPartForLesson("v.vert", 3, helpers.WithShaderPartType(gl.VERTEX_SHADER))
+	vertexShader, err := helpers.NewShaderForLesson(4, "v.vert", "f_with_color.frag")
 	helpers.FinishOnError(err)
-	fragmentShader, err := helpers.NewShaderPartForLesson("f.frag", 3, helpers.WithShaderPartType(gl.FRAGMENT_SHADER))
-	helpers.FinishOnError(err)
-
-	program, err := helpers.NewProgram(vertexShader, fragmentShader)
-	helpers.FinishOnError(err)
-
-	vertexShader.Dispose()
-	fragmentShader.Dispose()
 
 	// textCoords := []float32{
 	// 	0.0, 0.0, // lower-let corner
@@ -33,12 +25,16 @@ func lesson() {
 		-0.5, -0.5, 0.0, // bottom left
 		-0.5, 0.5, 0.0, // top left
 	}
-	indicies := []uint32{
-		0, 1, 3, // first triangle
-		1, 2, 3, // second triangle
-	}
 
-	VAO, VBO, EBO := createTriangleBuffersWithIndices(vertices, indicies)
+	// texCoords := []float32{
+	// 	0.0, 0.0, // lower-let corner
+	// 	1.0, 0.0, // lower-right corner
+	// 	0.5, 1.0, // top-center corner
+	// }
+
+	VAO, VBO := createTriangleBuffers(vertices)
+
+	ourColor := helpers.NewCstring("ourColor")
 
 	gl.ClearColor(0.2, 0.3, 0.3, 1)
 	for !window.ShouldClose() {
@@ -46,9 +42,9 @@ func lesson() {
 
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		program.Use()
-		u_ourColor := program.GetUniformLocation("ourColor")
-		gl.Uniform4f(u_ourColor, 0.0, float32(1.0), 0.0, 1)
+		vertexShader.Use()
+		vertexShader.SetUniform4f(ourColor, 1.0, 0.0, 0.0, 1)
+
 		gl.BindVertexArray(VAO)
 		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, unsafe.Pointer(nil))
 
@@ -58,7 +54,5 @@ func lesson() {
 
 	gl.DeleteVertexArrays(1, &VAO)
 	gl.DeleteBuffers(1, &VBO)
-	gl.DeleteBuffers(1, &EBO)
 
-	program.Delete()
 }
