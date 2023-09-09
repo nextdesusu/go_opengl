@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/disintegration/imaging"
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
@@ -42,7 +43,8 @@ func NewTextureFromFile(file string, wrapR, wrapS int32) (*Texture, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewTexture(img, wrapR, wrapS)
+	rotated := imaging.Rotate180(img)
+	return NewTexture(rotated, wrapR, wrapS)
 }
 
 func NewTexture(img image.Image, wrapR, wrapS int32) (*Texture, error) {
