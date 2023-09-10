@@ -21,17 +21,38 @@ type Texture struct {
 	texUnit uint32 // Texture unit that is currently bound to ex: gl.TEXTURE0
 }
 
+type textureCreationOpts struct {
+	wrapR, wrapS, minFilter, magFilter int32
+	rotated                            bool
+}
+
 var errUnsupportedStride = errors.New("unsupported stride, only 32-bit colors supported")
 
 var errTextureNotBound = errors.New("texture not bound")
 
-func NewTextureForLesson(lesson int, fName string, wrapR, wrapS int32) (*Texture, error) {
-	lessonsFolder := fmt.Sprintf("lesson%d", lesson)
-	file := path.Join("assets", lessonsFolder, fName)
-	return NewTextureFromFile(file, wrapR, wrapS)
+type textureCreationOptsOverride func(*textureCreationOpts)
+
+func WithWrappings(wrapR, wrapS int32) textureCreationOptsOverride {
+	return func(tco *textureCreationOpts) {
+		tco.wrapR = wrapR
+		tco.wrapS = wrapS
+	}
 }
 
-func NewTextureFromFile(file string, wrapR, wrapS int32) (*Texture, error) {
+func WithFilters(min, mag int32) textureCreationOptsOverride {
+	return func(tco *textureCreationOpts) {
+		tco.minFilter = min
+		tco.magFilter = mag
+	}
+}
+
+func NewTextureForLesson(lesson int, fName string, overrides ...textureCreationOptsOverride) (*Texture, error) {
+	lessonsFolder := fmt.Sprintf("lesson%d", lesson)
+	file := path.Join("assets", lessonsFolder, fName)
+	return NewTextureFromFile(file, overrides...)
+}
+
+func NewTextureFromFile(file string, overrides ...textureCreationOptsOverride) (*Texture, error) {
 	imgFile, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -43,11 +64,23 @@ func NewTextureFromFile(file string, wrapR, wrapS int32) (*Texture, error) {
 	if err != nil {
 		return nil, err
 	}
-	rotated := imaging.Rotate180(img)
-	return NewTexture(rotated, wrapR, wrapS)
+	return NewTexture(img, overrides...)
 }
 
-func NewTexture(img image.Image, wrapR, wrapS int32) (*Texture, error) {
+func NewTexture(img image.Image, overrides ...textureCreationOptsOverride) (*Texture, error) {
+	opts := &textureCreationOpts{
+		wrapR:     gl.REPEAT,
+		wrapS:     gl.REPEAT,
+		minFilter: gl.LINEAR,
+		magFilter: gl.LINEAR,
+		rotated:   true,
+	}
+	for _, override := range overrides {
+		override(opts)
+	}
+	if opts.rotated {
+		img = imaging.Rotate180(img)
+	}
 	rgba := image.NewRGBA(img.Bounds())
 	draw.Draw(rgba, rgba.Bounds(), img, image.Pt(0, 0), draw.Src)
 	if rgba.Stride != rgba.Rect.Size().X*4 { // TODO-cs: why?
@@ -75,10 +108,10 @@ func NewTexture(img image.Image, wrapR, wrapS int32) (*Texture, error) {
 
 	// set the texture wrapping/filtering options (applies to current bound texture obj)
 	// TODO-cs
-	gl.TexParameteri(texture.target, gl.TEXTURE_WRAP_R, wrapR)
-	gl.TexParameteri(texture.target, gl.TEXTURE_WRAP_S, wrapS)
-	gl.TexParameteri(texture.target, gl.TEXTURE_MIN_FILTER, gl.LINEAR) // minification filter
-	gl.TexParameteri(texture.target, gl.TEXTURE_MAG_FILTER, gl.LINEAR) // magnification filter
+	gl.TexParameteri(texture.target, gl.TEXTURE_WRAP_R, opts.wrapR)
+	gl.TexParameteri(texture.target, gl.TEXTURE_WRAP_S, opts.wrapS)
+	gl.TexParameteri(texture.target, gl.TEXTURE_MIN_FILTER, opts.minFilter) // minification filter
+	gl.TexParameteri(texture.target, gl.TEXTURE_MAG_FILTER, opts.magFilter) // magnification filter
 
 	gl.TexImage2D(target, 0, internalFmt, width, height, 0, format, pixType, dataPtr)
 
@@ -104,17 +137,4 @@ func (tex *Texture) SetUniform(uniformLoc int32) error {
 	}
 	gl.Uniform1i(uniformLoc, int32(tex.texUnit-gl.TEXTURE0))
 	return nil
-}
-
-func loadImageFile(file string) (image.Image, error) {
-	infile, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	defer infile.Close()
-
-	// Decode automatically figures out the type of immage in the file
-	// as long as its image/<type> is imported
-	img, _, err := image.Decode(infile)
-	return img, err
 }

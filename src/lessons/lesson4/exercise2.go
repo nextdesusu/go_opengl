@@ -14,10 +14,10 @@ func exercise2() {
 	helpers.FinishOnError(err)
 	vertices := []float32{
 		// positions          // colors           // texture coords
-		0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, // top right
-		0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, // bottom right
+		0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 2.0, 2.0, // top right
+		0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 2.0, 0.0, // bottom right
 		-0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, // bottom let
-		-0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, // top let
+		-0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 2.0, // top let
 	}
 
 	indices := []uint32{
@@ -40,9 +40,9 @@ func exercise2() {
 		gl.EnableVertexAttribArray(2)
 	})
 
-	containerTexture, err := helpers.NewTextureForLesson(4, "container.jpg", gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
+	containerTexture, err := helpers.NewTextureForLesson(4, "container.jpg", helpers.WithWrappings(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE))
 	helpers.FinishOnError(err)
-	faceTexture, err := helpers.NewTextureForLesson(4, "awesomeface.png", gl.REPEAT, gl.REPEAT)
+	faceTexture, err := helpers.NewTextureForLesson(4, "awesomeface.png")
 	helpers.FinishOnError(err)
 
 	containerTextureId := helpers.NewCstring("texture1")

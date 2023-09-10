@@ -40,7 +40,7 @@ func coloredTexture() {
 		gl.EnableVertexAttribArray(2)
 	})
 
-	texture, err := helpers.NewTextureForLesson(4, "container.jpg", gl.REPEAT, gl.REPEAT)
+	texture, err := helpers.NewTextureForLesson(4, "container.jpg")
 	helpers.FinishOnError(err)
 	gl.ClearColor(0.2, 0.3, 0.3, 1)
 	for !window.ShouldClose() {
@@ -95,9 +95,9 @@ func multiTexture() {
 		gl.EnableVertexAttribArray(2)
 	})
 
-	containerTexture, err := helpers.NewTextureForLesson(4, "container.jpg", gl.REPEAT, gl.REPEAT)
+	containerTexture, err := helpers.NewTextureForLesson(4, "container.jpg")
 	helpers.FinishOnError(err)
-	faceTexture, err := helpers.NewTextureForLesson(4, "awesomeface.png", gl.REPEAT, gl.REPEAT)
+	faceTexture, err := helpers.NewTextureForLesson(4, "awesomeface.png")
 	helpers.FinishOnError(err)
 
 	containerTextureId := helpers.NewCstring("texture1")
@@ -130,5 +130,5 @@ func multiTexture() {
 }
 
 func lesson() {
-	exercise2()
+	exercise3()
 }

@@ -8,16 +8,17 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
-func exercise1() {
+func exercise3() {
 	window := createWindow()
-	shader, err := helpers.NewShaderForLesson(4, "v.vert", "f_only_face.frag")
+	shader, err := helpers.NewShaderForLesson(4, "v.vert", "f_4_faces.frag")
 	helpers.FinishOnError(err)
+
 	vertices := []float32{
 		// positions          // colors           // texture coords
-		0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, // top right
-		0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, // bottom right
-		-0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, // bottom let
-		-0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, // top let
+		0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 0.55, 0.55, // top right
+		0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 0.55, 0.45, // bottom right
+		-0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 0.45, 0.45, // bottom let
+		-0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.45, 0.55, // top let
 	}
 
 	indices := []uint32{
@@ -40,9 +41,9 @@ func exercise1() {
 		gl.EnableVertexAttribArray(2)
 	})
 
-	containerTexture, err := helpers.NewTextureForLesson(4, "container.jpg")
+	containerTexture, err := helpers.NewTextureForLesson(4, "container.jpg", helpers.WithFilters(gl.NEAREST, gl.NEAREST), helpers.WithWrappings(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE))
 	helpers.FinishOnError(err)
-	faceTexture, err := helpers.NewTextureForLesson(4, "awesomeface.png")
+	faceTexture, err := helpers.NewTextureForLesson(4, "awesomeface.png", helpers.WithFilters(gl.NEAREST, gl.NEAREST))
 	helpers.FinishOnError(err)
 
 	containerTextureId := helpers.NewCstring("texture1")
