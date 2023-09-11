@@ -1,4 +1,4 @@
-package lesson4
+package lesson5
 
 import (
 	"fmt"
@@ -110,22 +110,6 @@ const ogl_right = 1
 
 type point struct {
 	X, Y float32
-}
-
-type scissor struct {
-	left, right, top, bottom float32
-}
-
-const tex_min float32 = 0
-const tex_max float32 = 1
-
-func normalizedScissor(left, right, bottom, top float32) scissor {
-	return scissor{
-		left:   app_math.NumberInRange[float32](0, float32(SCREEN_WIDTH), tex_min, tex_max, left),
-		right:  app_math.NumberInRange[float32](0, float32(SCREEN_WIDTH), tex_min, tex_max, right),
-		bottom: app_math.NumberInRange[float32](0, float32(SCREEN_HEIGHT), tex_min, tex_max, bottom),
-		top:    app_math.NumberInRange[float32](0, float32(SCREEN_HEIGHT), tex_min, tex_max, top),
-	}
 }
 
 func normalizedPoint(x, y int) point {

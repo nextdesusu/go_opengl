@@ -12,13 +12,18 @@ func exercise3() {
 	window := createWindow()
 	shader, err := helpers.NewShaderForLesson(4, "v.vert", "f_4_faces.frag")
 	helpers.FinishOnError(err)
+	const w float32 = 0.0
+	var mHeight = float32(SCREEN_HEIGHT) * w
+	var mWidth = float32(SCREEN_WIDTH) * w
+
+	scissor := normalizedScissor(mWidth, float32(SCREEN_WIDTH)-mWidth, mHeight, float32(SCREEN_HEIGHT)-mHeight)
 
 	vertices := []float32{
 		// positions          // colors           // texture coords
-		0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 0.55, 0.55, // top right
-		0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 0.55, 0.45, // bottom right
-		-0.5, -0.5, 0.0, 0.0, 0.0, 1.0, 0.45, 0.45, // bottom let
-		-0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.45, 0.55, // top let
+		0.5, 0.5, 0.0, 1.0, 0.0, 0.0, scissor.top, scissor.right, // top right
+		0.5, -0.5, 0.0, 0.0, 1.0, 0.0, scissor.bottom, scissor.right, // bottom right
+		-0.5, -0.5, 0.0, 0.0, 0.0, 1.0, scissor.bottom, scissor.left, // bottom let
+		-0.5, 0.5, 0.0, 1.0, 1.0, 0.0, scissor.top, scissor.left, // top let
 	}
 
 	indices := []uint32{
