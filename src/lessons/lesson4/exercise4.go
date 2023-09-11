@@ -1,6 +1,7 @@
 package lesson4
 
 import (
+	"learn_opengl/src/lib/app_math"
 	"learn_opengl/src/lib/helpers"
 	"unsafe"
 
@@ -68,16 +69,11 @@ func exercise4() {
 		const step float32 = 0.0001
 		if w.GetKey(glfw.KeyUp) == glfw.Press {
 			c.mixValue += step
-			if c.mixValue >= 1.0 {
-				c.mixValue = 1.0
-			}
 		}
 		if w.GetKey(glfw.KeyDown) == glfw.Press {
 			c.mixValue -= step
-			if c.mixValue <= 0.0 {
-				c.mixValue = 0.0
-			}
 		}
+		c.mixValue = app_math.Clampf32(c.mixValue, 0.0, 1.0)
 	}
 
 	gl.ClearColor(0.2, 0.3, 0.3, 1)
