@@ -2,6 +2,7 @@ package lesson5
 
 import (
 	"learn_opengl/src/lib/helpers"
+	"math"
 	"unsafe"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
@@ -9,7 +10,7 @@ import (
 	"github.com/goki/mat32"
 )
 
-func transforms() {
+func exercise2() {
 	window := createWindow()
 	shader, err := helpers.NewShaderForLesson(5, "v.vert", "f.frag")
 	helpers.FinishOnError(err)
@@ -60,14 +61,21 @@ func transforms() {
 		containerTexture.Bind(gl.TEXTURE0)
 		faceTexture.Bind(gl.TEXTURE1)
 
-		transform.SetIdentity()
-		transform.SetRotationZ(float32(glfw.GetTime()))
-		transform.SetPos(mat32.Vec3{X: 0.5, Y: -0.5, Z: 0})
-
 		shader.Use()
-		shader.SetMat4(transformId, transform)
-
 		gl.BindVertexArray(VAO)
+		val := float32(glfw.GetTime())
+
+		transform.SetIdentity()
+		transform.SetRotationZ(val)
+		transform.SetPos(mat32.Vec3{X: 0.5, Y: -0.5, Z: 0})
+		shader.SetMat4(transformId, transform)
+		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, unsafe.Pointer(nil))
+
+		val = float32(math.Sin(glfw.GetTime()))
+		transform.SetIdentity()
+		transform.SetScale(val, val, 1)
+		transform.SetPos(mat32.Vec3{X: -0.5, Y: 0.5, Z: 0})
+		shader.SetMat4(transformId, transform)
 		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, unsafe.Pointer(nil))
 
 		glfw.PollEvents()
@@ -76,8 +84,4 @@ func transforms() {
 
 	gl.DeleteVertexArrays(1, &VAO)
 	gl.DeleteBuffers(1, &VBO)
-}
-
-func lesson() {
-	exercise2()
 }
