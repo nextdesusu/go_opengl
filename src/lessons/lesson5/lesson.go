@@ -6,7 +6,8 @@ import (
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/goki/mat32"
+
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 func transforms() {
@@ -51,7 +52,6 @@ func transforms() {
 
 	gl.ClearColor(0.2, 0.3, 0.3, 1)
 
-	transform := mat32.NewMat4()
 	for !window.ShouldClose() {
 		processInput(window)
 
@@ -60,12 +60,19 @@ func transforms() {
 		containerTexture.Bind(gl.TEXTURE0)
 		faceTexture.Bind(gl.TEXTURE1)
 
-		transform.SetIdentity()
-		transform.SetRotationZ(float32(glfw.GetTime()))
-		transform.SetPos(mat32.Vec3{X: 0.5, Y: -0.5, Z: 0})
+		deg := float32(glfw.GetTime())
+		transform := mgl32.Ident4()
+
+		translation := mgl32.Translate3D(0.5, -0.5, 0.0)
+		rotation := mgl32.HomogRotate3D(mgl32.RadToDeg(deg), mgl32.Vec3{0, 0, 1})
+		scale := mgl32.Scale3D(0.5, 0.5, 0.5)
+
+		transform = transform.Mul4(translation)
+		transform = transform.Mul4(rotation)
+		transform = transform.Mul4(scale)
 
 		shader.Use()
-		shader.SetMat4(transformId, transform)
+		shader.SetMat4(transformId, &transform)
 
 		gl.BindVertexArray(VAO)
 		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, unsafe.Pointer(nil))

@@ -7,7 +7,7 @@ import (
 	"path"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"github.com/goki/mat32"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 type Shader struct {
@@ -82,7 +82,7 @@ func (shader *Shader) SetFloat(name CString, value float32) {
 	gl.Uniform1f(shader.getUniformLocation(name), value)
 }
 
-func (shader *Shader) SetMat4(name CString, value *mat32.Mat4) {
+func (shader *Shader) SetMat4(name CString, value *mgl32.Mat4) {
 	gl.UniformMatrix4fv(shader.getUniformLocation(name), 1, false, &value[0])
 }
 

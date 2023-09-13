@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/goki/mat32"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 func exercise2() {
@@ -51,8 +51,6 @@ func exercise2() {
 	shader.SetInt(faceTextureId, 1)
 
 	gl.ClearColor(0.2, 0.3, 0.3, 1)
-
-	transform := mat32.NewMat4()
 	for !window.ShouldClose() {
 		processInput(window)
 
@@ -65,17 +63,24 @@ func exercise2() {
 		gl.BindVertexArray(VAO)
 		val := float32(glfw.GetTime())
 
-		transform.SetIdentity()
-		transform.SetRotationZ(val)
-		transform.SetPos(mat32.Vec3{X: 0.5, Y: -0.5, Z: 0})
-		shader.SetMat4(transformId, transform)
+		transform := mgl32.Ident4()
+
+		translation := mgl32.Translate3D(0.5, -0.5, 0)
+		rotation := mgl32.HomogRotate3D(mgl32.RadToDeg(val), mgl32.Vec3{0, 0, 1})
+		scale := mgl32.Scale3D(0.5, 0.5, 0.5)
+
+		transform = transform.Mul4(translation).Mul4(rotation).Mul4(scale)
+		shader.SetMat4(transformId, &transform)
 		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, unsafe.Pointer(nil))
 
 		val = float32(math.Sin(glfw.GetTime()))
-		transform.SetIdentity()
-		transform.SetScale(val, val, 1)
-		transform.SetPos(mat32.Vec3{X: -0.5, Y: 0.5, Z: 0})
-		shader.SetMat4(transformId, transform)
+
+		transform = mgl32.Ident4()
+		translation = mgl32.Translate3D(-0.5, 0.5, 0)
+		scale = mgl32.Scale3D(val, val, 0.5)
+
+		transform = transform.Mul4(translation).Mul4(scale)
+		shader.SetMat4(transformId, &transform)
 		gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, unsafe.Pointer(nil))
 
 		glfw.PollEvents()
