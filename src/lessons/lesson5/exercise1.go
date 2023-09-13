@@ -9,7 +9,7 @@ import (
 	"github.com/goki/mat32"
 )
 
-func transforms() {
+func exercise1() {
 	window := createWindow()
 	shader, err := helpers.NewShaderForLesson(5, "v.vert", "f.frag")
 	helpers.FinishOnError(err)
@@ -76,8 +76,4 @@ func transforms() {
 
 	gl.DeleteVertexArrays(1, &VAO)
 	gl.DeleteBuffers(1, &VBO)
-}
-
-func lesson() {
-	exercise1()
 }
